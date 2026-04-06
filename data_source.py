@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+import os
+from databricks import sql
 
 @st.cache_data
 def mock_data() -> pd.DataFrame:
@@ -18,12 +20,22 @@ def mock_data() -> pd.DataFrame:
         data.append({"src": "fct_orders", "dst": f"dm_user_{i}", "job_name": "fanout_job", "version": "2.0.0"})
     return pd.DataFrame(data)
 
+@st.cache_resource(ttl=3600)  # Optional: TTL (Time-To-Live) in seconds to refresh stale connections
+def get_db_connection(profile_name: str = None):
+    return sql.connect(profile=profile_name)
+
+
 @st.cache_data
-def get_databricks_nodes(table_name: str) -> pd.DataFrame:
-    # This is a placeholder for actual Databricks logic.
-    # It returns mock data representing data from a table.
-    data = [
-        {"src": f"raw_{table_name}", "dst": f"stg_{table_name}", "job_name": f"clean_{table_name}", "version": "1.0.0"},
-        {"src": f"stg_{table_name}", "dst": f"fct_{table_name}", "job_name": f"process_{table_name}", "version": "1.0.0"},
-    ]
-    return pd.DataFrame(data)
+def get_databricks_nodes(table_name: str,
+                         profile_name: str) -> pd.DataFrame:
+    conn = get_db_connection(profile_name=profile_name)
+    with conn.cursor() as cursor:
+        # Assuming the table has src, dst, job_name, and version columns
+        query = f"SELECT * FROM {table_name}"
+        cursor.execute(query)
+        result = cursor.fetchall()
+
+        # Convert to list of dicts for DataFrame
+        columns = [desc[0] for desc in cursor.description]
+        data = [dict(zip(columns, row)) for row in result]
+        return pd.DataFrame(data)

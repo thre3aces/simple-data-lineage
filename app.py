@@ -17,6 +17,7 @@ st.title("Data Lineage Explorer")
 parser = argparse.ArgumentParser(description="Data Lineage Explorer Arguments")
 parser.add_argument("--source", choices=["mock", "databricks"], default="mock", help="Data source type")
 parser.add_argument("--table", type=str, help="Databricks table name (required if source is databricks)")
+parser.add_argument("--profile_name", type=str, help="Databricks profile name (required if source is databricks)")
 
 # Use a workaround to handle how Streamlit passes arguments.
 # args = parser.parse_args(sys.argv[1:]) if you're calling it from a normal python app.
@@ -31,17 +32,18 @@ try:
         args, unknown = parser.parse_known_args()
 except SystemExit:
     # If parsing fails or --help is called, we can provide a default or handle gracefully.
-    args = argparse.Namespace(source="mock", table=None)
+    args = argparse.Namespace(source="mock", table=None, profile_name=None)
 
 source_type = args.source
 table_name = args.table
+profile_name = args.profile_name
 
 # --- Filters ---
 if source_type == "databricks":
-    if not table_name:
-        st.sidebar.error("Table name must be specified via --table runtime argument for Databricks source.")
+    if not table_name or not profile_name:
+        st.sidebar.error("Table name and profile name must be specified via --table and --profile_name runtime arguments for Databricks source.")
         st.stop()
-    df = get_databricks_nodes(table_name)
+    df = get_databricks_nodes(table_name, profile_name)
 else:
     df = mock_data()
 

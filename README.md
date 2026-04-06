@@ -14,6 +14,11 @@ A simple Streamlit application for examining and visualizing data lineage. It di
 
 ## Installation
 
+1. **Environment Setup**: Ensure you have Python 3.8+ and set the following environment variables if using the Databricks source:
+   - `DATABRICKS_SERVER_HOSTNAME`
+   - `DATABRICKS_HTTP_PATH`
+   - `DATABRICKS_TOKEN`
+
 1. **Clone the repository**:
    ```bash
    git clone <repository-url>
@@ -46,9 +51,9 @@ streamlit run app.py -- --source mock
 ```
 
 ### Option 2: Databricks Source
-To run the app with a Databricks source, you must provide a table name:
+The Databricks connector depends on Databricks CLI auth. You need to provide the auth profile name used to authenticate with Databricks cli:
 ```bash
-streamlit run app.py -- --source databricks --table my_lineage_table
+streamlit run app.py -- --source databricks --table my_lineage_table --profile_name my_db_profile
 ```
 
 ## Testing
