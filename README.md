@@ -51,7 +51,7 @@ streamlit run app.py -- --source mock
 ```
 
 ### Option 2: Databricks Source
-The Databricks connector depends on Databricks CLI auth. You need to provide the auth profile name used to authenticate with Databricks cli:
+The Databricks connector depends on Databricks CLI auth (install it if you haven't already). You need to provide the auth profile name used to authenticate with Databricks cli:
 ```bash
 streamlit run app.py -- --source databricks --table my_lineage_table --profile_name my_db_profile
 ```
